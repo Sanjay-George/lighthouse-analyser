@@ -1,0 +1,20 @@
+table.responsive-table{
+    font-size : 80%;
+}
+
+.daterangepicker td{
+    padding : 0;
+}
+#metrics-holder{
+    text-align: center;
+    margin-top : 10px;
+}
+
+[type="radio"]:checked+span:after, [type="radio"].with-gap:checked+span:before, [type="radio"].with-gap:checked+span:after {
+    border: 2px solid #08c4ff !important; 
+}
+
+[type="radio"]:checked+span:after, [type="radio"].with-gap:checked+span:after, 
+{
+    background-color: #052633 !important;
+}

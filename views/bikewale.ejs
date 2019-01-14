@@ -1,0 +1,203 @@
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+<% include layout.ejs %>
+        
+<div class="container">
+
+    
+    <div class="row">
+        
+        <div class="col s4">
+             <input type="text" name="daterange" value="" />
+        </div>
+        
+        <div id="metrics-holder" class="col s8">
+             <label>
+                <input class="with-gap" name="metrics" data-metric="performance" type="radio" <% if(typeof metric === 'undefined' || metric === "performance") {%> checked  <% } %> />
+                <span>Performance</span>
+            </label>
+            <label>
+                <input class="with-gap" name="metrics" data-metric="seo"  type="radio" <% if(typeof metric !== 'undefined' && metric==="seo") {%> checked <% } %>/>
+                <span>SEO</span>
+            </label>
+            <label>
+                <input class="with-gap" name="metrics" data-metric="best-practices"  type="radio"  <% if(typeof metric !== 'undefined' && metric==="best-practices") {%> checked <% } %>/>
+                <span>Best Practices</span>
+            </label>
+            <label>
+                <input class="with-gap" name="metrics" data-metric="accessibility"  type="radio" <% if(typeof metric !== 'undefined' && metric==="accessibility") { %> checked <% } %> />
+                <span>Accessibility</span>
+            </label>
+        </div>
+        
+    </div>
+    
+    
+    <div class="row">
+        <div class="col s12" style="justify-content: center;">
+            <div id="placeholder" style="margin-top: 50px;width:100%;height:200px">
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">   
+      <table class="responsive-table">
+        <thead>
+          <tr>
+              <th>Url</th>
+              <th>Performance</th>
+              <th>First Contentful Paint</th>
+              <th>SpeedIndex</th>
+              <th>Time To Interactive</th>
+              <th>First CPU Idle</th>
+
+          </tr>
+        </thead>
+
+        <tbody>
+            
+            
+          <tr>
+              <td><%=maskingName %></td>
+              <td><%=metrics.performance.score * 100%>%</td>
+              <td><%=metrics.performance.submetrics[0].value%> </td>
+              <td><%=metrics.performance.submetrics[1].value%> </td>
+              <td><%=metrics.performance.submetrics[2].value%> </td>
+              <td><%=metrics.performance.submetrics[3].value%> </td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+    
+    
+</div>
+
+
+
+
+
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jquery.flot/0.8.3/jquery.flot.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.time.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script type="text/javascript">
+    requestData = {
+        metric : $("#metrics-holder input:checked").attr("data-metric"),
+        startDate : new Date().getTime(),
+        endDate : new Date().getTime(),
+        app : "bikewale"
+    } 
+    
+//    var graphData = [ [1546347091 , 0.3], [1546606311, 1], [1546779134, 0.314], [1546951945, 0.1], [1547124758, 0.501], [1547211071, 0.614] ];
+    var graphData = <%=graphPoints%>;
+    console.log(graphData);
+    
+    $("#metrics-holder input").click(function(){
+        requestData.metric = $(this).attr("data-metric");
+        refreshPageWithQP();
+    });
+    
+    var refreshPageWithQP = function(){
+        window.location.href = window.location.origin + window.location.pathname + "?metric=" + requestData.metric + "&startDate=" + requestData.startDate + "&endDate=" + requestData.endDate;
+    }
+    
+    var addMonths = function(date, months)
+    {
+          date.setMonth(date.getMonth() + months);
+          return formatDate(date) ;
+    }
+    var formatDate = function(date)
+    {
+        return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() ;
+    }
+    $(function(){
+
+        $.plot("#placeholder", [graphData] , {
+             series: {
+                lines: {
+                    show: true,
+                    lineWidth: 3,
+                    fill : true,
+                    fillColor : {colors : ["#bbdefb", "#ffffff"]}
+
+                },
+                points: {
+                    show: true
+                },
+                shadowSize: 0,
+                highlightColor : "#c4defc"
+
+            },
+            colors : ["#1976d2"],
+            grid: {
+                hoverable: true,
+                clickable: false,
+                borderColor: '#808080',
+                borderWidth: {top : 0, right : 0, left : 0, bottom : 2},
+                labelMargin: 10,
+                backgroundColor: '#FFF'
+            },
+            yaxis: {
+                min: 0,
+                max : 1,
+                color: '#EDEDED'
+            },
+            xaxis: {
+                mode : 'time',
+                 timeformat : "%d/%m/%y" , 
+                color: '#FFF',
+
+            },
+            legend: {
+                show: false
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: '%x: %y',
+                shifts: {
+                    x: -30,
+                    y: 25
+                },
+                defaultTheme: false
+            }
+        }
+        );
+        
+        // DATE RANGE PICKER
+        $('input[name="daterange"]').daterangepicker({
+             locale: {
+                "format": "DD/MM/YYYY",
+                "separator": " - ",
+             },
+             ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            minDate: addMonths(new Date(), -6),
+            maxDate: formatDate(new Date()),
+            opens: 'right'
+        }, function(start, end, label) {
+            
+            requestData.startDate = new Date(start).getTime();
+            requestData.endDate = new Date(end).getTime();
+            
+            console.log(requestData);
+            refreshPageWithQP();
+            // call api
+            
+      });
+
+    });
+
+    
+   
+
+</script>
+
+<% include footer.ejs %>

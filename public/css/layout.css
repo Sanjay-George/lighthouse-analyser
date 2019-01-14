@@ -1,0 +1,33 @@
+body {
+    font-size : 15px;
+}
+nav .nav-wrapper{
+    z-index : 10;
+}
+nav a.brand-logo{
+    font-size : 170%;
+    text-align: left;
+    margin-left : 20px;
+}
+
+ul.sidenav{
+    z-index : 1;
+    transform: translateX(0%);
+    width : 220px;
+    padding-top : 70px;
+}
+.sidenav li{
+    cursor: pointer;
+}
+.sidenav a.subheader{
+    cursor: pointer;
+}
+.sidenav .subheader{
+    pointer-events:auto;
+}
+.container{
+    position: absolute;
+    left : 220px;
+    padding : 15px;
+    width : calc(100% - 220px);
+}
