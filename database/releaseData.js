@@ -1,7 +1,7 @@
 const _database = "releasedb";
 const _collection = "bw_releases";
 const mongoClient = require('mongodb').MongoClient;
-var startIndex, endIndex;
+var startTimestamp, endTimestamp;
 
 
 var fetchReleaseData = (startDate, endDate) => {
@@ -19,13 +19,13 @@ var fetchReleaseData = (startDate, endDate) => {
                         data.push(items[i].timestamp);
 //                    console.log("inside promise "  + data + "" + data.length);
                     
-                    startIndex = findLowerIndex(data, startDate);
-                    endIndex = findUpperIndex(data, endDate);
+                    startTimestamp = findLowerTimestamp(data, startDate);
+                    endTimestamp = findUpperTimestamp(data, endDate);
                     
-//                    console.log(startIndex, endIndex);
+//                    console.log(startTimestamp, endTimestamp);
                     
                     resolve({
-                        startIndex, endIndex
+                        startTimestamp, endTimestamp
                     });
                 }
             });
@@ -33,7 +33,7 @@ var fetchReleaseData = (startDate, endDate) => {
     });
 };
 
-function findLowerIndex(stringArray, timestamp) {
+function findLowerTimestamp(stringArray, timestamp) {
     array = stringArray.map(Number);
     let start = 0
         , end = array.length - 1;
@@ -57,7 +57,7 @@ function findLowerIndex(stringArray, timestamp) {
     }
 };
 
-function findUpperIndex(stringArray, timestamp) {
+function findUpperTimestamp(stringArray, timestamp) {
     array = stringArray.map(Number);
     let start = 0
         , end = array.length - 1;

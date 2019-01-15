@@ -40,61 +40,56 @@ function fetchLighthouseData(docKey, timestamp, url) {
 }
 
 function setReleaseData(resultSet, docKey, timestamp, url) {
-    var dataJson = {
-        "timestamp": timestamp
-        , "performance": {
-            "score": resultSet.categories.performance.score
-            , "submetrics": [
-                {
-                    "id": "first-contentful-paint"
-                    , "value": resultSet.audits["first-contentful-paint"].displayValue
-              }
-                , {
-                    "id": "speed-index"
-                    , "value": resultSet.audits["speed-index"].displayValue
-              }
-                , {
-                    "id": "interactive"
-                    , "value": resultSet.audits["interactive"].displayValue
-              }
-                , {
-                    "id": "first-cpu-idle"
-                    , "value": resultSet.audits["first-cpu-idle"].displayValue
-              }
-            ]
-        }
-        , "seo": {
-            "score": resultSet.categories.seo.score
+    var performanceJson = {
+        timestamp : timestamp,
+        score : resultSet.categories.performance.score,
+        data : {
+            firstContentfulPaint : resultSet.audits["first-contentful-paint"].displayValue, 
+            speedIndex :  resultSet.audits["speed-index"].displayValue,
+            interactive : resultSet.audits["interactive"].displayValue,
+            firstCpuIdle : resultSet.audits["first-cpu-idle"].displayValue
         }
     }
-    var modelJson = {};
-    modelJson[docKey] = {
-        "url": url
-        , "data": [dataJson]
-    };
+    
     mongoClient.connect("mongodb://localhost:27017", (err, client) => {
-        var db = client.db("releasedb");
-        var findQuery = {};
-        findQuery[docKey] = {
-            $exists: true
-            , $ne: null
-        };
-        var pushQuery = {};
-        pushQuery[docKey + ".data"] = dataJson;
-        db.collection("bw_models").updateOne(findQuery, {
-            $push: pushQuery
+        var db = client.db("localdb");
+            
+        db.collection("bw_models").updateOne({
+            maskingName : docKey, 
+            url : url
         }, {
-            upsert: 1
-        }, (err, res) => {
-            db.collection("bw_models").find().toArray((err, items) => console.log(JSON.stringify(items)));
+            $push : {
+                "metrics.performance" : performanceJson,
+                "metrics.seo" : null
+            }
+        }, {
+            upsert : 1
+        }, (err, items) => {
             client.close();
         });
+            
+//        findQuery = {
+//            $exists: true
+//            , $ne: null
+//        };
+//        var pushQuery = {};
+//        pushQuery[docKey + ".data"] = dataJson;
+//        db.collection("bw_models").updateOne(findQuery, {
+//            $push: pushQuery
+//        }, {
+//            upsert: 1
+//        }, (err, res) => {
+//            db.collection("bw_models").find().toArray((err, items) => console.log(JSON.stringify(items)));
+//            client.close();
+//        });
+        
+        
     })
 }
 
 function insertReleaseDate() {
     mongoClient.connect("mongodb://localhost:27017", (err, client) => {
-        var db = client.db("releasedb");
+        var db = client.db("localdb");
         db.collection("bw_releases").insertOne({
             "timestamp": Date.now().toString()
         }, () => client.close())

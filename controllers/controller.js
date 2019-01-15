@@ -39,7 +39,7 @@ module.exports = {
             releaseData.fetchReleaseData(data.startDate, data.endDate).then(result => {
                 console.log("FROM DB  : " + JSON.stringify(result));
                 
-                specificPageData.fetchDataByKey(data.app, data.page, data.maskingName, result.startIndex, result.endIndex, data.metric).then(result => {
+                specificPageData.fetchDataByKey(data.app, data.page, data.maskingName, result.startTimestamp, result.endTimestamp, data.metric).then(result => {
                     // result is in array of objects format
                     // TODD : CALC WEIGHTED AVERAGE FOR EACH METRIC AND SET IT TO METRICS (VIEW IN TABLE)
                     data.metrics = result[0];                    
