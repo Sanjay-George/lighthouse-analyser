@@ -1,5 +1,5 @@
-const _database = "releasedb";
-const _collection = "bw_releases";
+const _database = "local";
+const _collection = "lh_releases";
 const mongoClient = require('mongodb').MongoClient;
 var startTimestamp, endTimestamp;
 

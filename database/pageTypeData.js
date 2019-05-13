@@ -1,5 +1,5 @@
-const _database = "releasedb";
-const _collection = "bw_models";
+const _database = "local";
+const _collection = "lh_urls";
 const mongoClient = require('mongodb').MongoClient;
 
 

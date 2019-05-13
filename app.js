@@ -14,4 +14,4 @@ app.use(express.static(__dirname + '/public'));
 
 router(app);
 
-app.listen(3000, () => console.log("Server up!"));
+app.listen(3000, () => console.log("Server up on port 3000!"));

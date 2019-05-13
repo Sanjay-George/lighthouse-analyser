@@ -2,7 +2,16 @@ const lighthouse = require('lighthouse');
 const chromeLauncher = require('chrome-launcher');
 const fs = require('fs');
 const readLine = require('readline');
-const mongoClient = require('mongodb').MongoClient;
+const mysql = require('mysql');
+
+const con = mysql.createConnection({
+    host : "localhost",
+    user : "root",
+    password : "admin123",
+    database : "lighthouse"
+});
+
+//const mongoClient = require('mongodb').MongoClient;
 const lhOpts = {
     outputPath: '/'
 , };
@@ -17,10 +26,11 @@ var lastIndex;
 function readUrls(){
     urls = fs.readFileSync('urls.txt').toString().split("\n");
     for(i in urls) {
-        console.log("index : "  + i  + " vluae : " + urls[i]);
+        console.log("index : "  + i  + " vluae : " + urls[i]); // TODO : remove later
     }
 }
 
+// take full urls (not specific to bikewale)
 myEmitter.on('lighthouse-finish', () => {
     if (index < lastIndex) fetchLighthouseData(urls[index].match(/m\/[a-z]+-bikes\/(.*)\//)[1], Date.now().toString(), "https://www.bikewale.com" + urls[index++])
 });
@@ -51,37 +61,27 @@ function setReleaseData(resultSet, docKey, timestamp, url) {
         }
     }
     
-    mongoClient.connect("mongodb://localhost:27017", (err, client) => {
-        var db = client.db("localdb");
-            
-        db.collection("bw_models").updateOne({
-            maskingName : docKey, 
-            url : url
-        }, {
-            $push : {
-                "metrics.performance" : performanceJson,
-                "metrics.seo" : null
-            }
-        }, {
-            upsert : 1
-        }, (err, items) => {
-            client.close();
-        });
-            
-//        findQuery = {
-//            $exists: true
-//            , $ne: null
-//        };
-//        var pushQuery = {};
-//        pushQuery[docKey + ".data"] = dataJson;
-//        db.collection("bw_models").updateOne(findQuery, {
-//            $push: pushQuery
+    con.connect(function(err){
+        if(err)
+            throw err;
+    })
+//    mongoClient.connect("mongodb://localhost:27017", (err, client) => {
+//        var db = client.db("local");
+//            
+//        db.collection("lh_urls").updateOne({
+//            maskingName : docKey, 
+//            url : url
 //        }, {
-//            upsert: 1
-//        }, (err, res) => {
-//            db.collection("bw_models").find().toArray((err, items) => console.log(JSON.stringify(items)));
+//            $push : {
+//                "metrics.performance" : performanceJson,
+//                "metrics.seo" : null
+//            }
+//        }, {
+//            upsert : 1
+//        }, (err, items) => {
 //            client.close();
 //        });
+            
         
         
     })
@@ -89,8 +89,8 @@ function setReleaseData(resultSet, docKey, timestamp, url) {
 
 function insertReleaseDate() {
     mongoClient.connect("mongodb://localhost:27017", (err, client) => {
-        var db = client.db("localdb");
-        db.collection("bw_releases").insertOne({
+        var db = client.db("local");
+        db.collection("lh_releases").insertOne({
             "timestamp": Date.now().toString()
         }, () => client.close())
     });

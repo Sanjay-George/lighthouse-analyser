@@ -1,10 +1,10 @@
-const _database = "releasedb";
-var _collection = "";
+const _database = "local";
+var _collection = "lh_urls";
 const mongoClient = require('mongodb').MongoClient;
 
 
 var fetchDataByKey = (app, page, docKey, startTimestamp, endTimestamp, metric) => {      
-    _collection = app + "_" + page;
+//    _collection = app + "_" + page;
     
     return new Promise((resolve, reject) => {
                 
