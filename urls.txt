@@ -1,8 +1,3 @@
-/m/royalenfield-bikes/classic-350/
-/m/bajaj-bikes/pulsar-150/
-/m/tvs-bikes/apache-160/
-/m/ktm-bikes/125-duke/
-/m/yamaha-bikes/r15/
-/m/tvs-bikes/apache-rtr-160-4v/
-/m/tvs-bikes/apache-200/
-/m/bajaj-bikes/pulsar-ns/
+https://www.bikewale.com/m/royalenfield-bikes/classic-350/
+https://www.bikewale.com/m/bajaj-bikes/pulsar-150/
+https://www.bikewale.com/m/tvs-bikes/apache-160/

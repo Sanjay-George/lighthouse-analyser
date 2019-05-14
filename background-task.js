@@ -4,12 +4,14 @@ const fs = require('fs');
 const readLine = require('readline');
 const mysql = require('mysql');
 
-const con = mysql.createConnection({
+const config = {
     host : "localhost",
     user : "root",
     password : "admin123",
     database : "lighthouse"
-});
+}; //  import from another file
+
+var con = mysql.createConnection(config);
 
 //const mongoClient = require('mongodb').MongoClient;
 const lhOpts = {
@@ -21,18 +23,21 @@ const myEmitter = new MyEmitter();
 var urls = [];
 var index = 0;
 var lastIndex;
-
+var now = new Date()
+var timestamp = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
 function readUrls(){
     urls = fs.readFileSync('urls.txt').toString().split("\n");
     for(i in urls) {
-        console.log("index : "  + i  + " vluae : " + urls[i]); // TODO : remove later
+        console.log("index : "  + i  + " value : " + urls[i]); // TODO : remove later
     }
 }
 
-// take full urls (not specific to bikewale)
 myEmitter.on('lighthouse-finish', () => {
-    if (index < lastIndex) fetchLighthouseData(urls[index].match(/m\/[a-z]+-bikes\/(.*)\//)[1], Date.now().toString(), "https://www.bikewale.com" + urls[index++])
+    if (index < lastIndex) 
+        fetchLighthouseData(urls[index++])
+    else
+        con.end();
 });
 
 function launchChromeAndRunLighthouse(url, opts) {
@@ -42,14 +47,16 @@ function launchChromeAndRunLighthouse(url, opts) {
     });
 }
 
-function fetchLighthouseData(docKey, timestamp, url) {
-    launchChromeAndRunLighthouse(url, lhOpts).then(resultSet => {
-        setReleaseData(JSON.parse(resultSet), docKey, timestamp, url);
-        myEmitter.emit('lighthouse-finish');
-    });
+function fetchLighthouseData(url) {
+    if(url != "" && typeof url != 'undefined'){
+        launchChromeAndRunLighthouse(url, lhOpts).then(resultSet => {
+            setReleaseData(JSON.parse(resultSet), url);
+            myEmitter.emit('lighthouse-finish');
+        });
+    }
 }
 
-function setReleaseData(resultSet, docKey, timestamp, url) {
+function setReleaseData(resultSet,  url) {
     var performanceJson = {
         timestamp : timestamp,
         score : resultSet.categories.performance.score,
@@ -60,44 +67,23 @@ function setReleaseData(resultSet, docKey, timestamp, url) {
             firstCpuIdle : resultSet.audits["first-cpu-idle"].displayValue
         }
     }
+    console.log(`performanceJson : ${performanceJson} \ntimestamp : ${timestamp} \nUrl : ${url}`);
     
-    con.connect(function(err){
-        if(err)
-            throw err;
-    })
-//    mongoClient.connect("mongodb://localhost:27017", (err, client) => {
-//        var db = client.db("local");
-//            
-//        db.collection("lh_urls").updateOne({
-//            maskingName : docKey, 
-//            url : url
-//        }, {
-//            $push : {
-//                "metrics.performance" : performanceJson,
-//                "metrics.seo" : null
-//            }
-//        }, {
-//            upsert : 1
-//        }, (err, items) => {
-//            client.close();
-//        });
-            
-        
-        
-    })
+
+    let sql = "call lighthouse.insertdata(?,?,?,?,?,?,?)";  // insert urls, and lighthouse data for the urls
+    let params = [url, timestamp, resultSet.categories.performance.score, resultSet.audits["first-contentful-paint"].displayValue, resultSet.audits["speed-index"].displayValue, resultSet.audits["interactive"].displayValue, resultSet.audits["first-cpu-idle"].displayValue]
+    
+    con.query(sql, params, function(err, result){   
+       if(err)
+           throw err;
+        console.log(`Url inserted : ${url}`);
+    });   
+    
 }
 
-function insertReleaseDate() {
-    mongoClient.connect("mongodb://localhost:27017", (err, client) => {
-        var db = client.db("local");
-        db.collection("lh_releases").insertOne({
-            "timestamp": Date.now().toString()
-        }, () => client.close())
-    });
-}
+
 
 readUrls();
 lastIndex = urls.length;
 
-insertReleaseDate();
-fetchLighthouseData(urls[index].match(/m\/[a-z]+-bikes\/(.*)\//)[1], Date.now().toString(), "https://www.bikewale.com" + urls[index++])
+fetchLighthouseData(urls[index++])
