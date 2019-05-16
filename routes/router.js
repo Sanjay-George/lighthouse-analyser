@@ -12,8 +12,8 @@ module.exports = (app) => {
     
     
     
-    app.get('/collection/:id', controller.collectionController);
-    app.get('/collectioin/:id/url/:id', controller.urlController);
+    app.get('/collection/:collectionid', controller.collectionController);
+    app.get('/collection/:collectionid/url/:urlid', controller.urlController);
     app.get('/', controller.homepage );
 
 }

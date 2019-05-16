@@ -25,18 +25,32 @@ class PerformanceSchema{
     }
 }
 
-var fetchDataByKey = (url, startTimestamp, endTimestamp) => {      
+var fetchDataByKey = (urlId, startTimestamp, endTimestamp) => {      
     
-    let sql = "call lighthouse.fetchperformancedata(?)";
-    let params = [url];
+    let sql = "call lighthouse.fetchperformancedata(?, ?, ?)";
+    let params = [urlId, startTimestamp, endTimestamp];
+    
+    var data = new Array();
+    
+//    console.log("Repo - params to sp : " + JSON.stringify(params));
     
     return new Promise((resolve, reject) => {
         con.query(sql, params, function(err, result){
            if(err)
                reject(err);
-            console.log("Performance data fetched : " + result);
-            let performancePoint = new PerformanceSchema(url, )
-            resolve(result);
+            
+//            console.log("Performance data fetched : " + result + "\n" + JSON.stringify(result));
+            
+            result[0].forEach((value, index)=>{
+                let performancePoint = new PerformanceSchema(value.Url, value.Timestamp, value.Score, value.FirstContentfulPaint, value.SpeedIndex, value.Interactive, value.FirstCpuIdle);
+                
+                data.push(performancePoint);
+            });
+            
+            // foreach row in result, create a point
+//            let performancePoint = new PerformanceSchema(urlId, ) // TODO : FILL IN THE PARAMS
+            console.log("REPO : final data : " + JSON.stringify(data));
+            resolve(data);
         });
     });
     

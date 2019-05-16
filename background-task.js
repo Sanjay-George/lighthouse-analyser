@@ -23,8 +23,8 @@ const myEmitter = new MyEmitter();
 var urls = [];
 var index = 0;
 var lastIndex;
-var now = new Date()
-var timestamp = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+
+var timestamp = Date.now();
 
 function readUrls(){
     urls = fs.readFileSync('urls.txt').toString().split("\n");
@@ -70,7 +70,7 @@ function setReleaseData(resultSet,  url) {
     console.log(`performanceJson : ${performanceJson} \ntimestamp : ${timestamp} \nUrl : ${url}`);
     
 
-    let sql = "call lighthouse.insertdata(?,?,?,?,?,?,?)";  // insert urls, and lighthouse data for the urls
+    let sql = "call lighthouse.insertdata(?,?,?,?,?,?,?)"; // SP
     let params = [url, timestamp, resultSet.categories.performance.score, resultSet.audits["first-contentful-paint"].displayValue, resultSet.audits["speed-index"].displayValue, resultSet.audits["interactive"].displayValue, resultSet.audits["first-cpu-idle"].displayValue]
     
     con.query(sql, params, function(err, result){   
