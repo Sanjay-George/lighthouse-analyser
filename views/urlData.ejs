@@ -58,28 +58,21 @@
 
         <tbody>
             
-            <% for(var i = 0; i < metrics.length; i++){ %>
-                <tr>
-                  <td><%=metrics[i].url %></td>
-                  <td><%= new Date(metrics[i].timestamp)    %></td>
-                  <td><%=metrics[i].score * 100%>%</td>
-                  <td><%=metrics[i].firstContentfulPaint%> </td>
-                  <td><%=metrics[i].speedIndex%> </td>
-                  <td><%=metrics[i].interactive%> </td>
-                  <td><%=metrics[i].firstCpuIdle%> </td>
-                </tr>
-            <% } %>
+            <%for(var i = 0; i < metrics.length; i++){ 
+                if(typeof metrics[i] !== "undefined"){ %>
+                    <tr>
+                      <td><%=metrics[i].url %></td>
+                      <td><%= new Date(metrics[i].timestamp)    %></td>
+                      <td><%=metrics[i].score * 100%>%</td>
+                      <td><%=metrics[i].firstContentfulPaint%> </td>
+                      <td><%=metrics[i].speedIndex%> </td>
+                      <td><%=metrics[i].interactive%> </td>
+                      <td><%=metrics[i].firstCpuIdle%> </td>
+                    </tr>
+            <% } 
+            }%>
             
-<!--
-          <tr>
-              <td><%=metrics[0].url %></td>
-              <td><%=metrics[0].score * 100%>%</td>
-              <td><%=metrics[0].firstContentfulPaint%> </td>
-              <td><%=metrics[0].speedIndex%> </td>
-              <td><%=metrics[0].interactive%> </td>
-              <td><%=metrics[0].firstCpuIdle%> </td>
-          </tr>
--->
+
           
         </tbody>
       </table>
@@ -185,21 +178,25 @@
                 "format": "DD/MM/YYYY",
                 "separator": " - ",
              },
-             ranges: {
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-            },
+//             ranges: {
+//                'Today': [moment(), moment()],
+//                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+//                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+//                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+//                'This Month': [moment().startOf('month'), moment().endOf('month')],
+//                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+//            },
             minDate: addMonths(new Date(), -6),
             maxDate: formatDate(new Date()),
             opens: 'right'
         }, function(start, end, label) {
             
-            requestData.startDate = new Date(start).getTime();
-            requestData.endDate = new Date(end).getTime();
+            let startDate =  new Date(start).getTime();
+            let endDate = new Date(end).getTime();
+            endDate = Math.round(((endDate / 1000) + (24 * 3600)) * 1000);
+            
+            requestData.startDate = startDate;
+            requestData.endDate = endDate;
             
             console.log(requestData);
             refreshPageWithQP();
