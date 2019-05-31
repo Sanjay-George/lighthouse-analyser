@@ -1,3 +1,6 @@
 https://www.bikewale.com/m/royalenfield-bikes/classic-350/
 https://www.bikewale.com/m/bajaj-bikes/pulsar-150/
 https://www.bikewale.com/m/tvs-bikes/apache-160/
+https://stg-7.bikewale.com/m/royalenfield-bikes/classic-350/
+https://stg-7.bikewale.com/m/bajaj-bikes/pulsar-150/
+https://stg-7.bikewale.com/m/tvs-bikes/apache-160/
